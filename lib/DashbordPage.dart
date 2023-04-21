@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:just_audio/just_audio.dart';
 
 import 'addproanim.dart';
 
@@ -448,6 +449,8 @@ class _View_ProductsState extends State<View_Products> {
     forviewdata();
   }
 
+  final player = AudioPlayer();
+
   bool isload = false;
 
   @override
@@ -463,10 +466,11 @@ class _View_ProductsState extends State<View_Products> {
             itemBuilder: (context, index) {
               return InkWell(
                 onTap: () {
+                  player.setAsset("audioplay/QKTA234-pop.mp3");
+                  player.play();
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return Inviewproduct(temp, index);
-                      ;
                     },
                   ));
                 },
@@ -477,9 +481,7 @@ class _View_ProductsState extends State<View_Products> {
                       return Container(
                         height: 100,
                         width: 100,
-                        decoration: BoxDecoration(
-                        color: Colors.black
-                        ),
+                        decoration: BoxDecoration(color: Colors.black),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
@@ -493,9 +495,7 @@ class _View_ProductsState extends State<View_Products> {
                               ),
                             ),
                             InkWell(
-                              onTap: () {
-
-                              },
+                              onTap: () {},
                               child: Container(
                                 width: 170,
                                 height: 60,

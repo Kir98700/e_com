@@ -1,5 +1,6 @@
 import 'package:e_com/DashbordPage.dart';
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:lottie/lottie.dart';
 
 class animetion extends StatefulWidget {
@@ -17,6 +18,8 @@ class _animetionState extends State<animetion> {
     super.initState();
     foranimetion();
   }
+  final player = AudioPlayer();
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -36,9 +39,9 @@ class _animetionState extends State<animetion> {
     );
   }
   void foranimetion() {
-
-    Future.delayed(Duration(seconds: 3)).then((value) {
-
+    player.setAsset("audioplay/BQM9F4J-child-thank-you.mp3");
+    player.play();
+    Future.delayed(Duration(seconds: 1)).then((value) {
       setState(() {
         DashbordPage.count=0;
       });
