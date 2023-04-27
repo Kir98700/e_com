@@ -1,12 +1,13 @@
 import 'dart:io';
-
+import 'dart:math';
 import 'package:e_com/Inviewproduct.dart';
 import 'package:e_com/LogInPage.dart';
 import 'package:e_com/main.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:just_audio/just_audio.dart';
@@ -85,9 +86,6 @@ class _DashbordPageState extends State<DashbordPage> {
                       title: Text("View Product"),
                       trailing: Icon(Icons.arrow_right),
                     ),
-                    SizedBox(
-                      height: 280,
-                    ),
                     ListTile(
                       onTap: () {
                         Spleshscreen.prefs!
@@ -102,7 +100,8 @@ class _DashbordPageState extends State<DashbordPage> {
                       },
                       tileColor: Colors.purple.shade100,
                       title: Text("Log Out"),
-                      trailing: Icon(Icons.logout_rounded),
+                      leading: Icon(Icons.logout_rounded),
+                      trailing: Icon(Icons.arrow_right),
                     ),
                   ],
                 )
@@ -115,21 +114,6 @@ class _DashbordPageState extends State<DashbordPage> {
                 : DashbordPage.count == 0
                     ? appbar = "View_Product"
                     : appbar = "Homepage"),
-            actions: [
-              IconButton(
-                  onPressed: () {
-                    Spleshscreen.prefs!
-                        .setBool("loginstatus", false)
-                        .then((value) {
-                      Navigator.pushReplacement(context, MaterialPageRoute(
-                        builder: (context) {
-                          return LogInPage();
-                        },
-                      ));
-                    });
-                  },
-                  icon: Icon(Icons.logout))
-            ],
             elevation: 20),
         body: listtt[DashbordPage.count],
       ),
@@ -248,7 +232,7 @@ class _Add_ProductsState extends State<Add_Products> {
                         ),
                         Radio(
                           activeColor: Colors.red,
-                          value: "Perfume",
+                          value: "leptop",
                           groupValue: thetype,
                           onChanged: (value) {
                             setState(() {
@@ -367,7 +351,7 @@ class _Add_ProductsState extends State<Add_Products> {
                     final storageRef = FirebaseStorage.instance.ref();
 
                     String imagename =
-                        "Image${DateTime.now().day}${DateTime.now().month}${DateTime.now().year}.jpg";
+                        "Image${DateTime.now().day}${DateTime.now().month}${DateTime.now().year}-${Random().nextInt(10000)}.jpg";
 
                     final spaceRef = storageRef.child("Imagess/${imagename}");
 
@@ -441,122 +425,240 @@ class View_Products extends StatefulWidget {
 
 class _View_ProductsState extends State<View_Products> {
   List temp = [];
+  final ref = FirebaseDatabase.instance.ref("kirtan");
+  final auth = FirebaseAuth.instance;
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    forviewdata();
-  }
 
   final player = AudioPlayer();
 
   bool isload = false;
 
+//   await ref.set({
+//   "Id": Idd,
+//   "name": Product_Name.text,
+//   // "Type": Product_Type.text,
+//   "Price": Product_Price.text,
+//   "Description": Product_Description.text,
+//   "Qty": Product_Qty.text,
+//
+//   "Images": "$value",
+// }).then((value) {
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        body: Container(
-          height: double.infinity,
-          width: double.infinity,
-          color: Colors.grey.shade300,
-          child: GridView.builder(
-            itemCount: temp.length,
-            itemBuilder: (context, index) {
-              return InkWell(
-                onTap: () {
-                  player.setAsset("audioplay/QKTA234-pop.mp3");
-                  player.play();
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return Inviewproduct(temp, index);
+        body: FirebaseAnimatedList(
+            query: ref,
+            itemBuilder: (context, snapshot, animation, index) {
+              return SizedBox(
+                height: 100,
+                width: double.infinity,
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (context) {
+                          return Inviewproduct(temp, index);
+                        },
+                      ));
                     },
-                  ));
-                },
-                onLongPress: () {
-                  showModalBottomSheet(
-                    context: context,
-                    builder: (context) {
-                      return Container(
-                        height: 100,
-                        width: 100,
-                        decoration: BoxDecoration(color: Colors.black),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            InkWell(
-                              onTap: () {},
-                              child: Container(
-                                width: 170,
-                                height: 60,
-                                color: Colors.grey,
-                                child: Center(child: Text("Pro_Delete")),
-                              ),
+                    onLongPress: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) {
+                          return Container(
+                            height: 100,
+                            width: 100,
+                            decoration: BoxDecoration(color: Colors.black),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      String? idd =
+                                      snapshot
+                                          .child('Id')
+                                          .value as String?;
+
+                                      FirebaseDatabase.instance
+                                          .ref("kirtan/$idd")
+                                          .remove();
+                                      Navigator.pop(context);
+                                      print("========================");
+                                    });
+                                  },
+                                  child: Container(
+                                    width: 170,
+                                    height: 60,
+                                    color: Colors.grey,
+                                    child: Center(child: Text("Pro_Delete")),
+                                  ),
+                                ),
+                                InkWell(
+                                  onTap: () {
+
+                                  },
+                                  child: Container(
+                                    width: 170,
+                                    height: 60,
+                                    color: Colors.grey,
+                                    child: Center(child: Text("Pro_Update")),
+                                  ),
+                                ),
+                              ],
                             ),
-                            InkWell(
-                              onTap: () {},
-                              child: Container(
-                                width: 170,
-                                height: 60,
-                                color: Colors.grey,
-                                child: Center(child: Text("Pro_Update")),
-                              ),
-                            ),
-                          ],
-                        ),
+                          );
+                        },
                       );
                     },
-                  );
-                },
-                child: Card(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Container(
-                        height: 100,
-                        width: 100,
-                        padding: EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                            image: DecorationImage(
-                                image: NetworkImage("${temp[index]['Images']}"),
-                                fit: BoxFit.fill)),
+                    child: Card(
+                      color: Colors.grey,
+                      child: ListTile(
+                        leading: Container(
+                          height: 100,
+                          width: 100,
+                          decoration: BoxDecoration(
+                              image: DecorationImage(
+                                  image: NetworkImage(
+                                      "${snapshot
+                                          .child('Images')
+                                          .value}"))),
+                        ),
+                        title: Text("${snapshot
+                            .child('name')
+                            .value}"),
+                        subtitle: Text("${snapshot
+                            .child('Price')
+                            .value}"),
                       ),
-                      Text("${temp[index]['name']}"),
-                    ],
+                    ),
                   ),
                 ),
               );
-            },
-            gridDelegate:
-                SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-          ),
-        ),
+              // return GridView.builder(
+              //   gridDelegate:
+              //       SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+              //   itemBuilder: (context, index) {
+              //     return InkWell(
+              //       onTap: () {
+              //         player.setAsset("audioplay/QKTA234-pop.mp3");
+              //         player.play();
+              //         Navigator.push(context, MaterialPageRoute(
+              //           builder: (context) {
+              //             return Inviewproduct(temp, index);
+              //           },
+              //         ));
+              //       },
+              //       child: Card(
+              //         child: Column(
+              //           mainAxisAlignment: MainAxisAlignment.spaceAround,
+              //           children: [
+              //             Container(
+              //               height: 100,
+              //               width: 100,
+              //               padding: EdgeInsets.all(5),
+              //               decoration: BoxDecoration(
+              //                   image: DecorationImage(
+              //                       image:
+              //                           NetworkImage("${snapshot.child('Images')}"),
+              //                       fit: BoxFit.fill)),
+              //             ),
+              //             // Text("${temp[index]['name']}"),
+              //           ],
+              //         ),
+              //       ),
+              //     );
+              //   },
+              // );
+
+              // body: Container(
+              //   height: double.infinity,
+              //   width: double.infinity,
+              //   color: Colors.grey.shade300,
+              //   child: GridView.builder(
+              //     itemCount: temp.length,
+              //     itemBuilder: (context,index) {
+              //       return InkWell(
+              //         onTap: () {
+              //           player.setAsset("audioplay/QKTA234-pop.mp3");
+              //           player.play();
+              //           Navigator.push(context, MaterialPageRoute(
+              //             builder: (context) {
+              //               return Inviewproduct(temp, index);
+              //             },
+              //           ));
+              //         },
+              //         onLongPress: () {
+              //           showModalBottomSheet(
+              //             context: context,
+              //             builder: (context) {
+              //               return Container(
+              //                 height: 100,
+              //                 width: 100,
+              //                 decoration: BoxDecoration(color: Colors.black),
+              //                 child: Row(
+              //                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              //                   children: [
+              //                     InkWell(
+              //                       onTap: () {
+              //
+              //                         setState(() {
+              //                           fordeletdata();
+              //                         });
+              //
+              //                       },
+              //                       child: Container(
+              //                         width: 170,
+              //                         height: 60,
+              //                         color: Colors.grey,
+              //                         child: Center(child: Text("Pro_Delete")),
+              //                       ),
+              //                     ),
+              //                     InkWell(
+              //                       onTap: () {
+              //                         forupdatedata();
+              //                       },
+              //                       child: Container(
+              //                         width: 170,
+              //                         height: 60,
+              //                         color: Colors.grey,
+              //                         child: Center(child: Text("Pro_Update")),
+              //                       ),
+              //                     ),
+              //                   ],
+              //                 ),
+              //               );
+              //             },
+              //           );
+              //         },
+              //         child: Card(
+              //           child: Column(
+              //             mainAxisAlignment: MainAxisAlignment.spaceAround,
+              //             children: [
+              //               Container(
+              //                 height: 100,
+              //                 width: 100,
+              //                 padding: EdgeInsets.all(5),
+              //                 decoration: BoxDecoration(
+              //                     image: DecorationImage(
+              //                         image: NetworkImage("${temp[index]['Images']}"),
+              //                         fit: BoxFit.fill)),
+              //               ),
+              //               Text("${temp[index]['name']}"),
+              //             ],
+              //           ),
+              //         ),
+              //       );
+              //     },
+              //     gridDelegate:
+              //         SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+              //   ),
+              // ),
+            }),
       ),
     );
-  }
-
-  void forviewdata() {
-    DatabaseReference ref = FirebaseDatabase.instance.ref("kirtan");
-    // Stream<DatabaseEvent> de = ref.onValue;         // stream<Databaseevent>
-    //
-    // de.listen((DatabaseEvent event) {
-    //   print('Event Type == ${event.type}');
-    //   print('Event Snepshot == ${event.snapshot}');
-    //
-    //   map = event.snapshot.value as Map;
-    //
-    // });
-
-    ref.onValue.listen((event) {
-      // var snapshot = event.snapshot;
-      temp.clear();
-      Map mm = event.snapshot.value as Map;
-      mm.forEach((key, value1) {
-        setState(() {
-          temp.add(value1);
-        });
-      });
-    });
   }
 }
