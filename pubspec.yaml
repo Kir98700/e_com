@@ -47,6 +47,7 @@ dependencies:
   image_cropper: ^3.0.2
   flutter_spinkit:
   just_audio:
+  flutter_image_slideshow:
 
 
 dev_dependencies:
