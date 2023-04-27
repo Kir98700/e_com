@@ -1,10 +1,12 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
 
 class Inviewproduct extends StatefulWidget {
-  List temp;
-  int index;
+  DataSnapshot snapshot;
 
-  Inviewproduct(this.temp, this.index);
+
+  Inviewproduct(this.snapshot);
 
   @override
   State<Inviewproduct> createState() => _InviewproductState();
@@ -17,8 +19,9 @@ class _InviewproductState extends State<Inviewproduct> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.grey.shade100,
         appBar: AppBar(backgroundColor: Colors.black,
-          title: Text('${widget.temp[widget.index]['name']}'),
+          title: Text('${widget.snapshot.child('name').value}'),
         ),
         body: SingleChildScrollView(
           child: Column(
@@ -27,9 +30,21 @@ class _InviewproductState extends State<Inviewproduct> {
                 margin: EdgeInsets.all(5),
                 height: 270,
                 width: double.infinity,
-                child: Image.network(
-                  '${widget.temp[widget.index]['Images']}',
-                  fit: BoxFit.cover,
+                child: PageView.builder(
+                  itemCount: 1,
+                  itemBuilder: (context, index) {
+                    return Flexible(
+                      child: Container(
+                        color: Colors.black,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: PhotoView(
+                              imageProvider: NetworkImage(
+                                  "${widget.snapshot.child('Images').value}")),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
               SizedBox(height: 20),
@@ -42,7 +57,7 @@ class _InviewproductState extends State<Inviewproduct> {
                       children: [
                         Spacer(),
                         Text(
-                          '${widget.temp[widget.index]['name']}',
+                          '${widget.snapshot.child('name').value}',
                           style: TextStyle(
                               fontSize: 24, fontWeight: FontWeight.bold),
                         ),
@@ -53,8 +68,8 @@ class _InviewproductState extends State<Inviewproduct> {
                       children: [
                         Spacer(),
                         Text(
-                          ' ${widget.temp[widget.index]['Description']}',
-                          style: TextStyle(fontSize: 16),
+                          ' ${widget.snapshot.child('Description').value}',
+                          style: TextStyle(fontSize: 12),
                         ),
                       ],
                     ),
@@ -68,7 +83,7 @@ class _InviewproductState extends State<Inviewproduct> {
                         ),
                         Spacer(),
                         Text(
-                          '${widget.temp[widget.index]['Price']}',
+                          '${widget.snapshot.child('Price').value}',
                           style: TextStyle(
                               fontSize: 20, fontWeight: FontWeight.bold),
                         ),

@@ -48,6 +48,7 @@ dependencies:
   flutter_spinkit:
   just_audio:
   flutter_image_slideshow:
+  photo_view:
 
 
 dev_dependencies:

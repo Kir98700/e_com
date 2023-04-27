@@ -428,7 +428,6 @@ class _View_ProductsState extends State<View_Products> {
   final ref = FirebaseDatabase.instance.ref("kirtan");
   final auth = FirebaseAuth.instance;
 
-
   final player = AudioPlayer();
 
   bool isload = false;
@@ -460,7 +459,7 @@ class _View_ProductsState extends State<View_Products> {
                     onTap: () {
                       Navigator.push(context, MaterialPageRoute(
                         builder: (context) {
-                          return Inviewproduct(temp, index);
+                          return Inviewproduct(snapshot);
                         },
                       ));
                     },
@@ -479,10 +478,7 @@ class _View_ProductsState extends State<View_Products> {
                                   onTap: () {
                                     setState(() {
                                       String? idd =
-                                      snapshot
-                                          .child('Id')
-                                          .value as String?;
-
+                                          snapshot.child('Id').value as String?;
                                       FirebaseDatabase.instance
                                           .ref("kirtan/$idd")
                                           .remove();
@@ -498,9 +494,7 @@ class _View_ProductsState extends State<View_Products> {
                                   ),
                                 ),
                                 InkWell(
-                                  onTap: () {
-
-                                  },
+                                  onTap: () {},
                                   child: Container(
                                     width: 170,
                                     height: 60,
@@ -518,21 +512,21 @@ class _View_ProductsState extends State<View_Products> {
                       color: Colors.grey,
                       child: ListTile(
                         leading: Container(
-                          height: 100,
-                          width: 100,
-                          decoration: BoxDecoration(
-                              image: DecorationImage(
-                                  image: NetworkImage(
-                                      "${snapshot
-                                          .child('Images')
-                                          .value}"))),
+                          child: Row(
+                            children: [
+                              Container(
+                                height: 100,
+                                width: 100,
+                                decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                        image: NetworkImage(
+                                            "${snapshot.child('Images').value}"))),
+                              ),
+                            ],
+                          ),
                         ),
-                        title: Text("${snapshot
-                            .child('name')
-                            .value}"),
-                        subtitle: Text("${snapshot
-                            .child('Price')
-                            .value}"),
+                        title: Text("${snapshot.child('name').value}"),
+                        subtitle: Text("${snapshot.child('Price').value}"),
                       ),
                     ),
                   ),
